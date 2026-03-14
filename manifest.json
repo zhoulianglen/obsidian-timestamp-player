@@ -1,0 +1,9 @@
+{
+  "id": "obsidian-timestamp-player",
+  "name": "Timestamp Player",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "description": "Click timestamps in transcription documents to seek and play the embedded audio",
+  "author": "Len Zhou",
+  "isDesktopOnly": false
+}
