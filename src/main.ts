@@ -5,7 +5,7 @@ const INLINE_TS_RE = /(\d{1,3}:\d{2})/g;
 const AUDIO_EMBED_RE = /!\[\[.+?\.(mp3|webm|wav|m4a|ogg|3gp|flac)\]\]/i;
 
 export default class TimestampPlayerPlugin extends Plugin {
-	async onload() {
+	onload() {
 		this.registerMarkdownPostProcessor(
 			async (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
 				if (!(await this.hasAudioEmbed(ctx))) return;
