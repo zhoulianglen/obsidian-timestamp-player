@@ -1,10 +1,15 @@
 # Obsidian Timestamp Player
 
-Click timestamps in transcription documents to seek and play the embedded audio.
+[![GitHub release](https://img.shields.io/github/v/release/zhoulianglen/obsidian-timestamp-player)](https://github.com/zhoulianglen/obsidian-timestamp-player/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[中文说明](#中文说明)
+A lightweight Obsidian plugin that turns timestamps in transcription documents into interactive playback controls. Click any timestamp to seek and play the embedded audio — perfect for meeting notes, interview transcripts, and podcast annotations.
+
+[中文文档](README_CN.md)
 
 ## Demo
+
+Given a document like this:
 
 ```markdown
 ![[meeting-recording.ogg]]
@@ -16,37 +21,43 @@ Bob 01:02
 Right, and we should probably start with the MVP first.
 ```
 
-In reading view, each timestamp becomes a clickable `▶ 00:27` button. Click to seek and play; click again to pause.
+In reading view, each timestamp becomes a clickable `▶ 00:27` button. Click to play from that position; click again to pause.
 
 ## Features
 
-- **Speaker lines**: `SpeakerName MM:SS` at the start of a line → clickable play button
-- **Inline timestamps**: `MM:SS` anywhere in text → also clickable
-- **Toggle play/pause**: Click `▶` to play, click `⏸` to pause
-- **Playback follow-along**: During playback, the current timestamp auto-highlights as the audio progresses
-- **Multiple audio support**: Each audio file controls the timestamps below it — see [Multiple Audio Files](#multiple-audio-files)
-- **Auto-detection**: Plugin only activates when the document contains an embedded audio file
+- **Speaker line timestamps** — `SpeakerName MM:SS` at the start of a line becomes a clickable play button
+- **Inline timestamps** — `MM:SS` anywhere in text is also clickable
+- **Play / pause toggle** — click `▶` to play, click `⏸` to pause, click again to resume
+- **Playback follow-along** — the current timestamp auto-highlights and progresses as the audio plays
+- **Multiple audio files** — each audio controls only the timestamps in its own section
+- **Auto-detection** — the plugin only activates on documents that contain embedded audio
 
-## Format
+## Timestamp Format
 
-The plugin detects two patterns:
+The plugin recognizes two patterns:
 
-**Speaker lines** (timestamp at end of line):
+### Speaker lines
+
+Timestamp at the end of a line, preceded by a speaker name:
+
 ```
 SpeakerName MM:SS
-Content on next line
+Transcript content on the next line...
 ```
 
-**Inline timestamps** (anywhere in text):
+### Inline timestamps
+
+Timestamp appearing anywhere within text:
+
 ```
-As mentioned at 03:15, the proposal was...
+As mentioned at 03:15, the proposal was approved.
 ```
 
-The document must have an embedded audio file (`![[file.ogg]]`, `![[file.mp3]]`, etc.). If no audio is embedded, the plugin does nothing.
+> **Note:** The document must contain at least one embedded audio file (`![[file.mp3]]`, `![[file.ogg]]`, `![[file.wav]]`, etc.) for the plugin to activate. Supported formats: mp3, wav, ogg, webm, m4a, flac, 3gp.
 
 ## Multiple Audio Files
 
-When a document contains multiple audio files, each audio controls the timestamps that follow it, up to the next audio file:
+When a document contains more than one audio file, the plugin automatically partitions the document into sections. Each audio file controls the timestamps that appear **below it**, up until the next audio file (or the end of the document).
 
 ```markdown
 ![[interview-part1.mp3]]
@@ -66,13 +77,14 @@ Bob 00:45
 Also in part two...
 ```
 
-In this example:
-- Clicking `00:27` or `01:02` plays **interview-part1.mp3**
-- Clicking `00:15` or `00:45` plays **interview-part2.mp3**
+| Timestamp | Audio file |
+|-----------|------------|
+| `00:27`, `01:02` | interview-part1.mp3 |
+| `00:15`, `00:45` | interview-part2.mp3 |
 
-Each audio file and its timestamps are independent — timestamps can overlap (e.g., both sections can have `00:00`) without conflict.
+Sections are fully independent — timestamps can overlap across sections (e.g., both can have `00:00`) without conflict. When switching between sections, the previous audio is automatically paused.
 
-## Install
+## Installation
 
 ### Via BRAT (recommended)
 
@@ -82,114 +94,16 @@ Each audio file and its timestamps are independent — timestamps can overlap (e
 
 ### Manual
 
-1. Download `main.js`, `styles.css`, `manifest.json` from the latest release
-2. Create `.obsidian/plugins/obsidian-timestamp-player/`
-3. Copy the files into it
+1. Download `main.js`, `styles.css`, `manifest.json` from the [latest release](https://github.com/zhoulianglen/obsidian-timestamp-player/releases)
+2. Create `.obsidian/plugins/obsidian-timestamp-player/` in your vault
+3. Copy the three files into it
 4. Enable in Settings → Community plugins
 
-## Notes
+## Requirements
 
-- Only works in **reading view**
-- Speaker name supports any characters (Chinese, English, numbers, spaces, etc.)
+- Obsidian 1.0.0+
+- Reading view (the plugin does not modify edit/live-preview mode)
 
 ## License
-
-MIT — [zhoulianglen](https://github.com/zhoulianglen)
-
----
-
-# 中文说明
-
-点击转录文档中的时间戳，跳转到对应位置播放录音。
-
-## 演示
-
-```markdown
-![[会议录音.ogg]]
-
-张三 00:27
-所以核心思路是先搭一个平台...
-
-李四 01:02
-对，我们应该先从 MVP 开始。
-```
-
-在阅读视图下，时间戳变成可点击的 `▶ 00:27` 按钮。点击播放，再点击暂停。
-
-## 功能
-
-- **说话人行**：行首 `说话人 MM:SS` → 可点击播放按钮
-- **正文时间戳**：正文中的 `MM:SS` → 同样可点击
-- **播放/暂停切换**：点击 `▶` 播放，点击 `⏸` 暂停
-- **播放跟踪**：播放过程中，当前时间戳自动高亮，随播放进度往下移动
-- **多音频支持**：每个音频文件控制其下方的时间戳 — 详见[多音频文件](#多音频文件)
-- **自动检测**：仅当文档包含嵌入音频时插件才生效
-
-## 格式要求
-
-插件识别两种模式：
-
-**说话人行**（时间戳在行末）：
-```
-说话人 MM:SS
-下一行是内容
-```
-
-**正文时间戳**（出现在文本任意位置）：
-```
-在 03:15 提到的方案是...
-```
-
-文档中需要有嵌入的音频文件（`![[文件.ogg]]`、`![[文件.mp3]]` 等）。没有音频时插件不会生效。
-
-## 多音频文件
-
-当文档包含多个音频文件时，每个音频控制其下方的时间戳，直到遇到下一个音频文件为止：
-
-```markdown
-![[访谈录音-上半场.mp3]]
-
-张三 00:27
-上半场的对话内容...
-
-李四 01:02
-还是上半场...
-
-![[访谈录音-下半场.mp3]]
-
-张三 00:15
-这是下半场的录音...
-
-李四 00:45
-也是下半场...
-```
-
-上面的例子中：
-- 点击 `00:27` 或 `01:02` 播放 **访谈录音-上半场.mp3**
-- 点击 `00:15` 或 `00:45` 播放 **访谈录音-下半场.mp3**
-
-每个音频区段的时间戳互相独立，时间可以重叠（比如两段都有 `00:00`）不会冲突。
-
-## 安装
-
-### 通过 BRAT 安装（推荐）
-
-1. 安装 [BRAT](https://github.com/TfTHacker/obsidian42-brat) 插件
-2. 添加本仓库：`zhoulianglen/obsidian-timestamp-player`
-3. 在 设置 → 第三方插件 中启用
-
-### 手动安装
-
-1. 下载最新 release 中的 `main.js`、`styles.css`、`manifest.json`
-2. 在 `.obsidian/plugins/` 下创建 `obsidian-timestamp-player/` 文件夹
-3. 将文件复制进去
-4. 在 设置 → 第三方插件 中启用
-
-## 注意事项
-
-- 仅在**阅读视图**下生效
-- 说话人名支持中文、英文、数字、空格等任意字符
-
-## 许可
 
 MIT — [zhoulianglen](https://github.com/zhoulianglen)
