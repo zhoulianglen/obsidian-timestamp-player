@@ -1,15 +1,24 @@
-import { Plugin, MarkdownPostProcessorContext, MarkdownView } from "obsidian";
+import { Plugin, MarkdownPostProcessorContext, MarkdownView, TFile } from "obsidian";
 
 const SPEAKER_LINE_RE = /^(.+?)\s+(\d{1,3}):(\d{2})\s*$/;
 const INLINE_TS_RE = /(\d{1,3}:\d{2})/g;
+const AUDIO_EMBED_RE = /!\[\[.+?\.(mp3|webm|wav|m4a|ogg|3gp|flac)\]\]/i;
 
 export default class TimestampPlayerPlugin extends Plugin {
 	async onload() {
 		this.registerMarkdownPostProcessor(
-			(el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
+			async (el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
+				if (!(await this.hasAudioEmbed(ctx))) return;
 				this.processTimestamps(el);
 			}
 		);
+	}
+
+	private async hasAudioEmbed(ctx: MarkdownPostProcessorContext): Promise<boolean> {
+		const file = this.app.vault.getAbstractFileByPath(ctx.sourcePath);
+		if (!(file instanceof TFile)) return false;
+		const content = await this.app.vault.cachedRead(file);
+		return AUDIO_EMBED_RE.test(content);
 	}
 
 	private processTimestamps(el: HTMLElement) {
@@ -83,6 +92,11 @@ export default class TimestampPlayerPlugin extends Plugin {
 
 	private activeBtn: HTMLElement | null = null;
 	private activeAudio: HTMLAudioElement | null = null;
+	private activeContainer: HTMLElement | null = null;
+	private boundTimeUpdate: (() => void) | null = null;
+	private boundEnded: (() => void) | null = null;
+	private boundPause: (() => void) | null = null;
+	private switching = false;
 
 	private createTimestampBtn(timeStr: string, totalSeconds: number): HTMLSpanElement {
 		const btn = createSpan({ cls: "tsp-timestamp" });
@@ -97,19 +111,20 @@ export default class TimestampPlayerPlugin extends Plugin {
 		btn.addEventListener("click", (e) => {
 			e.preventDefault();
 			e.stopPropagation();
-			this.togglePlay(btn, icon, totalSeconds);
+			this.togglePlay(btn, totalSeconds);
 		});
 
 		return btn;
 	}
 
-	private togglePlay(btn: HTMLElement, icon: HTMLElement, seconds: number) {
-		// If clicking the currently playing button, toggle pause/play
-		if (this.activeBtn === btn && this.activeAudio && !this.activeAudio.paused) {
-			this.activeAudio.pause();
-			icon.textContent = "▶";
-			btn.removeClass("tsp-active");
-			this.activeBtn = null;
+	private togglePlay(btn: HTMLElement, seconds: number) {
+		// If clicking the active button, toggle pause/play
+		if (this.activeBtn === btn && this.activeAudio) {
+			if (!this.activeAudio.paused) {
+				this.activeAudio.pause();
+			} else {
+				this.activeAudio.play().catch(() => {});
+			}
 			return;
 		}
 
@@ -120,16 +135,16 @@ export default class TimestampPlayerPlugin extends Plugin {
 		const allAudio = container.querySelectorAll("audio");
 		if (allAudio.length === 0) return;
 
-		// Pause all and reset previous active button
+		// Detach old listeners before pausing to avoid stale callbacks
+		this.detachAudioListeners();
+		this.resetActiveBtn();
+
+		// Pause all audio
+		this.switching = true;
 		allAudio.forEach((a) => {
 			if (!(a as HTMLAudioElement).paused) (a as HTMLAudioElement).pause();
 		});
-
-		if (this.activeBtn && this.activeBtn !== btn) {
-			const prevIcon = this.activeBtn.querySelector(".tsp-play-icon");
-			if (prevIcon) prevIcon.textContent = "▶";
-			this.activeBtn.removeClass("tsp-active");
-		}
+		this.switching = false;
 
 		// Seek all audio to same position
 		allAudio.forEach((a) => {
@@ -140,24 +155,92 @@ export default class TimestampPlayerPlugin extends Plugin {
 		const audio = allAudio[allAudio.length - 1] as HTMLAudioElement;
 		audio.play().catch(() => {});
 
-		// Update button state
-		icon.textContent = "⏸";
-		btn.addClass("tsp-active");
-		this.activeBtn = btn;
 		this.activeAudio = audio;
+		this.activeContainer = container;
+		this.setActiveBtn(btn);
 
-		// Reset button when audio ends or is paused externally
-		const onPause = () => {
-			if (this.activeBtn === btn) {
-				icon.textContent = "▶";
-				btn.removeClass("tsp-active");
-				this.activeBtn = null;
-				this.activeAudio = null;
+		// Attach listeners for follow-along and cleanup
+		this.boundTimeUpdate = () => this.onTimeUpdate();
+		this.boundEnded = () => this.clearPlaybackState();
+		this.boundPause = () => {
+			if (this.switching) return;
+			if (this.activeBtn) {
+				const icon = this.activeBtn.querySelector(".tsp-play-icon");
+				if (icon) icon.textContent = "▶";
 			}
-			audio.removeEventListener("pause", onPause);
-			audio.removeEventListener("ended", onPause);
 		};
-		audio.addEventListener("pause", onPause);
-		audio.addEventListener("ended", onPause);
+		audio.addEventListener("timeupdate", this.boundTimeUpdate);
+		audio.addEventListener("ended", this.boundEnded);
+		audio.addEventListener("pause", this.boundPause);
+		audio.addEventListener("play", () => {
+			if (this.activeBtn) {
+				const icon = this.activeBtn.querySelector(".tsp-play-icon");
+				if (icon) icon.textContent = "⏸";
+			}
+		});
+	}
+
+	private onTimeUpdate() {
+		if (!this.activeAudio || !this.activeContainer) return;
+		const currentTime = this.activeAudio.currentTime;
+
+		const buttons = Array.from(this.activeContainer.querySelectorAll(".tsp-timestamp"))
+			.map((el) => ({
+				el: el as HTMLElement,
+				seconds: parseFloat(el.getAttribute("data-seconds") || "0"),
+			}))
+			.sort((a, b) => a.seconds - b.seconds);
+
+		let target: HTMLElement | null = null;
+		for (const b of buttons) {
+			if (b.seconds <= currentTime) {
+				target = b.el;
+			} else {
+				break;
+			}
+		}
+
+		if (target && target !== this.activeBtn) {
+			this.setActiveBtn(target);
+		}
+	}
+
+	private setActiveBtn(btn: HTMLElement) {
+		if (this.activeBtn) {
+			const prevIcon = this.activeBtn.querySelector(".tsp-play-icon");
+			if (prevIcon) prevIcon.textContent = "▶";
+			this.activeBtn.removeClass("tsp-active");
+		}
+		btn.addClass("tsp-active");
+		const icon = btn.querySelector(".tsp-play-icon");
+		if (icon) icon.textContent = "⏸";
+		this.activeBtn = btn;
+	}
+
+	private resetActiveBtn() {
+		if (this.activeBtn) {
+			const icon = this.activeBtn.querySelector(".tsp-play-icon");
+			if (icon) icon.textContent = "▶";
+			this.activeBtn.removeClass("tsp-active");
+			this.activeBtn = null;
+		}
+	}
+
+	private detachAudioListeners() {
+		if (this.activeAudio) {
+			if (this.boundTimeUpdate) this.activeAudio.removeEventListener("timeupdate", this.boundTimeUpdate);
+			if (this.boundEnded) this.activeAudio.removeEventListener("ended", this.boundEnded);
+			if (this.boundPause) this.activeAudio.removeEventListener("pause", this.boundPause);
+		}
+		this.boundTimeUpdate = null;
+		this.boundEnded = null;
+		this.boundPause = null;
+	}
+
+	private clearPlaybackState() {
+		this.detachAudioListeners();
+		this.resetActiveBtn();
+		this.activeAudio = null;
+		this.activeContainer = null;
 	}
 }
