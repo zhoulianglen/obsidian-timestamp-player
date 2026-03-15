@@ -23,8 +23,9 @@ In reading view, each timestamp becomes a clickable `▶ 00:27` button. Click to
 - **Speaker lines**: `SpeakerName MM:SS` at the start of a line → clickable play button
 - **Inline timestamps**: `MM:SS` anywhere in text → also clickable
 - **Toggle play/pause**: Click `▶` to play, click `⏸` to pause
-- **Auto-sync**: Pausing from Obsidian's native player resets the button state
-- **Active highlight**: Currently playing timestamp is visually highlighted
+- **Playback follow-along**: During playback, the current timestamp auto-highlights as the audio progresses
+- **Multiple audio support**: Each audio file controls the timestamps below it — see [Multiple Audio Files](#multiple-audio-files)
+- **Auto-detection**: Plugin only activates when the document contains an embedded audio file
 
 ## Format
 
@@ -41,7 +42,35 @@ Content on next line
 As mentioned at 03:15, the proposal was...
 ```
 
-The document must have an embedded audio file (`![[file.ogg]]`, `![[file.mp3]]`, etc.).
+The document must have an embedded audio file (`![[file.ogg]]`, `![[file.mp3]]`, etc.). If no audio is embedded, the plugin does nothing.
+
+## Multiple Audio Files
+
+When a document contains multiple audio files, each audio controls the timestamps that follow it, up to the next audio file:
+
+```markdown
+![[interview-part1.mp3]]
+
+Alice 00:27
+First part of the conversation...
+
+Bob 01:02
+Still part one...
+
+![[interview-part2.mp3]]
+
+Alice 00:15
+This is the second recording...
+
+Bob 00:45
+Also in part two...
+```
+
+In this example:
+- Clicking `00:27` or `01:02` plays **interview-part1.mp3**
+- Clicking `00:15` or `00:45` plays **interview-part2.mp3**
+
+Each audio file and its timestamps are independent — timestamps can overlap (e.g., both sections can have `00:00`) without conflict.
 
 ## Install
 
@@ -61,7 +90,6 @@ The document must have an embedded audio file (`![[file.ogg]]`, `![[file.mp3]]`,
 ## Notes
 
 - Only works in **reading view**
-- If multiple audio players exist, the last one is used
 - Speaker name supports any characters (Chinese, English, numbers, spaces, etc.)
 
 ## License
@@ -93,8 +121,9 @@ MIT — [zhoulianglen](https://github.com/zhoulianglen)
 - **说话人行**：行首 `说话人 MM:SS` → 可点击播放按钮
 - **正文时间戳**：正文中的 `MM:SS` → 同样可点击
 - **播放/暂停切换**：点击 `▶` 播放，点击 `⏸` 暂停
-- **状态同步**：用 Obsidian 原生播放器暂停时，按钮状态自动恢复
-- **高亮显示**：当前播放的时间戳高亮
+- **播放跟踪**：播放过程中，当前时间戳自动高亮，随播放进度往下移动
+- **多音频支持**：每个音频文件控制其下方的时间戳 — 详见[多音频文件](#多音频文件)
+- **自动检测**：仅当文档包含嵌入音频时插件才生效
 
 ## 格式要求
 
@@ -111,7 +140,35 @@ MIT — [zhoulianglen](https://github.com/zhoulianglen)
 在 03:15 提到的方案是...
 ```
 
-文档中需要有嵌入的音频文件（`![[文件.ogg]]`、`![[文件.mp3]]` 等）。
+文档中需要有嵌入的音频文件（`![[文件.ogg]]`、`![[文件.mp3]]` 等）。没有音频时插件不会生效。
+
+## 多音频文件
+
+当文档包含多个音频文件时，每个音频控制其下方的时间戳，直到遇到下一个音频文件为止：
+
+```markdown
+![[访谈录音-上半场.mp3]]
+
+张三 00:27
+上半场的对话内容...
+
+李四 01:02
+还是上半场...
+
+![[访谈录音-下半场.mp3]]
+
+张三 00:15
+这是下半场的录音...
+
+李四 00:45
+也是下半场...
+```
+
+上面的例子中：
+- 点击 `00:27` 或 `01:02` 播放 **访谈录音-上半场.mp3**
+- 点击 `00:15` 或 `00:45` 播放 **访谈录音-下半场.mp3**
+
+每个音频区段的时间戳互相独立，时间可以重叠（比如两段都有 `00:00`）不会冲突。
 
 ## 安装
 
@@ -131,7 +188,6 @@ MIT — [zhoulianglen](https://github.com/zhoulianglen)
 ## 注意事项
 
 - 仅在**阅读视图**下生效
-- 如果页面有多个音频播放器，默认使用最后一个
 - 说话人名支持中文、英文、数字、空格等任意字符
 
 ## 许可
