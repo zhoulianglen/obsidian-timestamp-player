@@ -89,7 +89,7 @@
 ### 通过 BRAT 安装（推荐）
 
 1. 安装 [BRAT](https://github.com/TfTHacker/obsidian42-brat) 插件
-2. 添加本仓库：`zhoulianglen/obsidian-timestamp-player`
+2. 添加本仓库：`https://github.com/zhoulianglen/obsidian-timestamp-player`
 3. 在 设置 → 第三方插件 中启用
 
 ### 手动安装
