@@ -132,7 +132,7 @@ export default class TimestampPlayerPlugin extends Plugin {
 		if (!view) return;
 
 		const container = view.containerEl;
-		const audio = this.findNearestAudio(container, btn);
+		const audio = this.findAudioForBtn(container, btn);
 		if (!audio) return;
 
 		// Detach old listeners before pausing to avoid stale callbacks
@@ -175,41 +175,32 @@ export default class TimestampPlayerPlugin extends Plugin {
 		});
 	}
 
-	/** Find the nearest audio element that precedes the button in DOM order */
-	private findNearestAudio(container: HTMLElement, btn: HTMLElement): HTMLAudioElement | null {
-		const allAudio = Array.from(container.querySelectorAll("audio")) as HTMLAudioElement[];
-		if (allAudio.length === 0) return null;
-		if (allAudio.length === 1) return allAudio[0];
-
-		// Find the last audio that appears before this button in document order
-		let nearest: HTMLAudioElement | null = null;
-		for (const a of allAudio) {
-			// Node.DOCUMENT_POSITION_FOLLOWING means a comes before btn
-			if (btn.compareDocumentPosition(a) & Node.DOCUMENT_POSITION_PRECEDING) {
-				nearest = a;
+	/** Find the audio element that this button belongs to (the last audio before it in document order) */
+	private findAudioForBtn(container: HTMLElement, btn: HTMLElement): HTMLAudioElement | null {
+		const all = Array.from(container.querySelectorAll("audio, .tsp-timestamp"));
+		let lastAudio: HTMLAudioElement | null = null;
+		for (const el of all) {
+			if (el.tagName === "AUDIO") {
+				lastAudio = el as HTMLAudioElement;
+			} else if (el === btn) {
+				return lastAudio;
 			}
 		}
-		// Fallback to first audio if button is before all audio elements
-		return nearest ?? allAudio[0];
+		return lastAudio;
 	}
 
-	/** Get timestamp buttons that belong to the same audio section */
+	/** Get timestamp buttons that belong to the same audio section (between this audio and the next) */
 	private getTimestampsForAudio(container: HTMLElement, audio: HTMLAudioElement): HTMLElement[] {
-		const allAudio = Array.from(container.querySelectorAll("audio")) as HTMLAudioElement[];
-		const audioIndex = allAudio.indexOf(audio);
-		const nextAudio = audioIndex < allAudio.length - 1 ? allAudio[audioIndex + 1] : null;
+		const all = Array.from(container.querySelectorAll("audio, .tsp-timestamp"));
+		const audioIndex = all.indexOf(audio);
+		if (audioIndex === -1) return [];
 
-		return Array.from(container.querySelectorAll(".tsp-timestamp")).filter((btn) => {
-			// Button must come after this audio
-			if (btn.compareDocumentPosition(audio) & Node.DOCUMENT_POSITION_PRECEDING) {
-				// If there's a next audio, button must come before it
-				if (nextAudio) {
-					return btn.compareDocumentPosition(nextAudio) & Node.DOCUMENT_POSITION_FOLLOWING;
-				}
-				return true;
-			}
-			return false;
-		}) as HTMLElement[];
+		const result: HTMLElement[] = [];
+		for (let i = audioIndex + 1; i < all.length; i++) {
+			if (all[i].tagName === "AUDIO") break;
+			result.push(all[i] as HTMLElement);
+		}
+		return result;
 	}
 
 	private onTimeUpdate() {
