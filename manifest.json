@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "minAppVersion": "1.0.0",
   "description": "Click timestamps in transcription documents to seek and play the embedded audio",
-  "author": "Len Zhou",
+  "author": "zhoulianglen",
   "authorUrl": "https://imzl.com",
   "isDesktopOnly": false
 }
