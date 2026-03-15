@@ -95,7 +95,7 @@
 ### 手动安装
 
 1. 从 [最新 release](https://github.com/zhoulianglen/obsidian-timestamp-player/releases) 下载 `main.js`、`styles.css`、`manifest.json`
-2. 在 vault 中创建 `.obsidian/plugins/obsidian-timestamp-player/` 文件夹
+2. 在 vault 中创建 `.obsidian/plugins/timestamp-player/` 文件夹
 3. 将三个文件复制进去
 4. 在 设置 → 第三方插件 中启用
 

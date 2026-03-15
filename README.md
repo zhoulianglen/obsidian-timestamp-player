@@ -95,7 +95,7 @@ Sections are fully independent — timestamps can overlap across sections (e.g.,
 ### Manual
 
 1. Download `main.js`, `styles.css`, `manifest.json` from the [latest release](https://github.com/zhoulianglen/obsidian-timestamp-player/releases)
-2. Create `.obsidian/plugins/obsidian-timestamp-player/` in your vault
+2. Create `.obsidian/plugins/timestamp-player/` in your vault
 3. Copy the three files into it
 4. Enable in Settings → Community plugins
 
