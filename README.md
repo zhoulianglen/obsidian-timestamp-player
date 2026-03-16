@@ -3,7 +3,7 @@
 [![GitHub release](https://img.shields.io/github/v/release/zhoulianglen/obsidian-timestamp-player)](https://github.com/zhoulianglen/obsidian-timestamp-player/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A lightweight Obsidian plugin that turns timestamps in transcription documents into interactive playback controls. Click any timestamp to seek and play the embedded audio — perfect for meeting notes, interview transcripts, and podcast annotations.
+An Obsidian plugin that embeds audio players in your notes with timestamp links for instant seeking — supports multiple audio regions and auto-follow highlighting.
 
 [中文文档](README_CN.md)
 

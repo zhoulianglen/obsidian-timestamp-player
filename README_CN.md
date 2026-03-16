@@ -3,7 +3,7 @@
 [![GitHub release](https://img.shields.io/github/v/release/zhoulianglen/obsidian-timestamp-player)](https://github.com/zhoulianglen/obsidian-timestamp-player/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-一个轻量的 Obsidian 插件，将转录文档中的时间戳转化为可交互的播放控件。点击任意时间戳即可跳转播放嵌入的音频——适用于会议记录、访谈转录、播客标注等场景。
+一款 Obsidian 插件，让你在笔记中嵌入音频播放器并通过时间戳链接快速跳转到指定时间点，支持多音频区域和自动跟随高亮。
 
 [English](README.md)
 
