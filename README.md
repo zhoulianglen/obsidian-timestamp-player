@@ -86,11 +86,9 @@ Sections are fully independent — timestamps can overlap across sections (e.g.,
 
 ## Installation
 
-### Via BRAT (recommended)
+### Community plugins (recommended)
 
-1. Install [BRAT](https://github.com/TfTHacker/obsidian42-brat)
-2. Add this repo: `https://github.com/zhoulianglen/obsidian-timestamp-player`
-3. Enable in Settings → Community plugins
+Search for **Timestamp Player** in Settings → Community plugins, or install directly from [the plugin page](https://community.obsidian.md/plugins/timestamp-player).
 
 ### Manual
 
