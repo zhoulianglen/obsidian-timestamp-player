@@ -5,7 +5,7 @@
 
 一款 Obsidian 插件，让你在笔记中嵌入音频播放器并通过时间戳链接快速跳转到指定时间点，支持多音频区域和自动跟随高亮。
 
-[English](README.md)
+[English](https://github.com/zhoulianglen/obsidian-timestamp-player/blob/master/README.md)
 
 ## 演示
 

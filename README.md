@@ -5,7 +5,7 @@
 
 An Obsidian plugin that embeds audio players in your notes with timestamp links for instant seeking — supports multiple audio regions and auto-follow highlighting.
 
-[中文文档](README_CN.md)
+[中文文档](https://github.com/zhoulianglen/obsidian-timestamp-player/blob/master/README_CN.md)
 
 ## Demo
 
