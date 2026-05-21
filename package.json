@@ -1,6 +1,6 @@
 {
   "name": "timestamp-player",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Click timestamps in transcription documents to seek and play the embedded audio",
   "main": "main.js",
   "scripts": {
