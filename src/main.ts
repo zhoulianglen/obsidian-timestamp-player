@@ -58,7 +58,7 @@ export default class TimestampPlayerPlugin extends Plugin {
 		const totalSeconds = minutes * 60 + seconds;
 		const timeStr = match[2] + ":" + match[3];
 
-		const wrapper = document.createDocumentFragment();
+		const wrapper = createFragment();
 		wrapper.appendChild(createSpan({ cls: "tsp-speaker", text: speaker + " " }));
 		wrapper.appendChild(this.createTimestampBtn(timeStr, totalSeconds));
 		node.parentNode?.replaceChild(wrapper, node);
@@ -66,7 +66,7 @@ export default class TimestampPlayerPlugin extends Plugin {
 
 	private replaceInlineTimestamps(node: Text) {
 		const text = node.textContent ?? "";
-		const fragment = document.createDocumentFragment();
+		const fragment = createFragment();
 		let lastIndex = 0;
 
 		INLINE_TS_RE.lastIndex = 0;
@@ -74,7 +74,7 @@ export default class TimestampPlayerPlugin extends Plugin {
 
 		while ((m = INLINE_TS_RE.exec(text)) !== null) {
 			if (m.index > lastIndex) {
-				fragment.appendChild(document.createTextNode(text.slice(lastIndex, m.index)));
+				fragment.appendChild(activeDocument.createTextNode(text.slice(lastIndex, m.index)));
 			}
 			const tsStr = m[1];
 			const parts = tsStr.split(":");
@@ -84,7 +84,7 @@ export default class TimestampPlayerPlugin extends Plugin {
 		}
 
 		if (lastIndex < text.length) {
-			fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+			fragment.appendChild(activeDocument.createTextNode(text.slice(lastIndex)));
 		}
 
 		node.parentNode?.replaceChild(fragment, node);
